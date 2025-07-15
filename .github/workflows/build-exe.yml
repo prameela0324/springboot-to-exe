@@ -26,14 +26,14 @@ jobs:
 
       - name: Create EXE using jpackage
         run: |
-          jpackage ^
-            --input target ^
-            --name MySpringApp ^
-            --main-jar springboot-to-exe-0.0.1-SNAPSHOT.jar ^
-            --main-class org.springframework.boot.loader.JarLauncher ^
-            --type exe ^
-            --dest output ^
-            --win-console ^
+          jpackage `
+            --input target `
+            --name MySpringApp `
+            --main-jar springboot-to-exe-0.0.1-SNAPSHOT.jar `
+            --main-class org.springframework.boot.loader.JarLauncher `
+            --type exe `
+            --dest output `
+            --win-console `
             --java-options "--enable-preview"
 
       - name: Upload EXE Artifact
