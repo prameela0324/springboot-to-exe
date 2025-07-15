@@ -1,43 +1,43 @@
-name: Build Spring Boot EXE
+name: Build EXE using jpackage
 
 on:
   push:
-    branches: [ main ]
-  workflow_dispatch:
+    branches: [main]
 
 jobs:
-  build-exe:
+  build-windows-exe:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-      - name: Set up Java
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '17'
 
-      - name: Build JAR with Maven
+      - name: Build Spring Boot JAR
         run: mvn clean package -DskipTests
+
+      - name: Install WiX Toolset
+        run: choco install wixtoolset
 
       - name: Create EXE using jpackage
         run: |
-          mkdir output
-          jpackage `
-            --type exe `
-            --input target `
-            --name SpringBootToExe `
-            --main-jar springboot-to-exe-0.0.1-SNAPSHOT.jar `
-            --main-class org.springframework.boot.loader.JarLauncher `
-            --dest output `
-            --java-options "-Xmx512m" `
-            --win-console
-        shell: pwsh
+          jpackage ^
+            --input target ^
+            --name MySpringApp ^
+            --main-jar springboot-to-exe-0.0.1-SNAPSHOT.jar ^
+            --main-class org.springframework.boot.loader.JarLauncher ^
+            --type exe ^
+            --dest output ^
+            --win-console ^
+            --java-options "--enable-preview"
 
-      - name: Upload EXE artifact
+      - name: Upload EXE Artifact
         uses: actions/upload-artifact@v4
         with:
           name: springboot-exe
-          path: output/
+          path: output/*.exe
