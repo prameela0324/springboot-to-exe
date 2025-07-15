@@ -1,0 +1,40 @@
+name: Build EXE from Spring Boot App
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Build JAR
+        run: ./mvnw clean package
+
+      - name: Create Output Directory
+        run: mkdir output
+
+      - name: Package as EXE using jpackage
+        run: |
+          jpackage `
+            --input target `
+            --name MySpringApp `
+            --main-jar springboot-to-exe-0.0.1-SNAPSHOT.jar `
+            --type exe `
+            --dest output `
+            --java-options "--enable-preview"
+
+      - name: Upload EXE Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: MySpringApp-Installer
+          path: output/
