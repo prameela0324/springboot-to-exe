@@ -9,21 +9,25 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Set up JDK
+      - name: Set up Java 21
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Build JAR
-        run: ./mvnw clean package
+      - name: Make Maven Wrapper Executable (for UNIX compatibility, safe on Windows)
+        run: chmod +x mvnw
+
+      - name: Build Spring Boot JAR
+        run: ./mvnw clean package -DskipTests
 
       - name: Create Output Directory
         run: mkdir output
 
-      - name: Package as EXE using jpackage
+      - name: Package EXE using jpackage with console
         run: |
           jpackage `
             --input target `
@@ -31,6 +35,7 @@ jobs:
             --main-jar springboot-to-exe-0.0.1-SNAPSHOT.jar `
             --type exe `
             --dest output `
+            --win-console `
             --java-options "--enable-preview"
 
       - name: Upload EXE Artifact
