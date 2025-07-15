@@ -28,8 +28,8 @@ jobs:
           jpackage `
             --type exe `
             --input target `
-            --name MySpringBootApp `
-            --main-jar target\my-spring-boot-app-0.0.1-SNAPSHOT.jar `
+            --name SpringBootToExe `
+            --main-jar springboot-to-exe-0.0.1-SNAPSHOT.jar `
             --main-class org.springframework.boot.loader.JarLauncher `
             --dest output `
             --java-options "-Xmx512m" `
