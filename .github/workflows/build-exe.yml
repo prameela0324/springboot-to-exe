@@ -19,10 +19,10 @@ jobs:
         distribution: 'temurin'
         java-version: '21'
 
-    - name: Set up WiX Toolset
+    - name: Install WiX Toolset
       run: |
-        choco install wix --version=3.11.2 --no-progress
-        echo "WIX installed"
+        choco install wix --no-progress --pre
+        echo "✅ WiX installed"
       shell: powershell
 
     - name: Build with Maven
