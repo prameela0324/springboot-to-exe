@@ -1,43 +1,47 @@
-name: Build EXE using jpackage
+name: Build EXE with jpackage
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build-windows-exe:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '21'
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '21'
 
-      - name: Build Spring Boot JAR
-        run: mvn clean package -DskipTests
+    - name: Set up WiX Toolset
+      run: |
+        choco install wix --version=3.11.2 --no-progress
+        echo "WIX installed"
+      shell: powershell
 
-      - name: Install WiX Toolset
-        run: choco install wixtoolset
+    - name: Build with Maven
+      run: mvn clean package -DskipTests
 
-      - name: Create EXE using jpackage
-        run: |
-          jpackage `
-            --input target `
-            --name MySpringApp `
-            --main-jar springboot-to-exe-0.0.1-SNAPSHOT.jar `
-            --main-class org.springframework.boot.loader.JarLauncher `
-            --type exe `
-            --dest output `
-            --win-console `
-            --java-options "--enable-preview"
+    - name: Package EXE using jpackage
+      run: |
+        jpackage --type exe `
+                 --input target `
+                 --name MySpringApp `
+                 --main-jar springboot-to-exe-0.0.1-SNAPSHOT.jar `
+                 --main-class org.springframework.boot.loader.JarLauncher `
+                 --dest output `
+                 --java-options "-Xmx512m" `
+                 --win-console
+      shell: powershell
 
-      - name: Upload EXE Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: springboot-exe
-          path: output/*.exe
+    - name: Upload EXE Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: springboot-app-installer
+        path: output\MySpringApp-*.exe
