@@ -19,28 +19,27 @@ jobs:
         distribution: temurin
         java-version: 21
 
-    - name: 🧪 Build fat JAR using Maven
+    - name: 🧪 Build Spring Boot fat JAR
       run: mvn clean package -DskipTests
 
-    - name: 📂 List JAR to verify
-      run: dir target
+    - name: 📂 Verify JAR Contents (debug step)
+      run: |
+        jar tf target/springboot-to-exe-0.0.1-SNAPSHOT.jar | findstr JarLauncher
       shell: cmd
 
-    - name: 📦 Create EXE with jpackage (no WiX)
+    - name: 📦 Package EXE with jpackage (no main-class)
       run: |
         jpackage --type app-image `
                  --input target `
                  --name MySpringApp `
                  --main-jar springboot-to-exe-0.0.1-SNAPSHOT.jar `
-                 --main-class org.springframework.boot.loader.JarLauncher `
                  --dest output `
                  --java-options "-Xmx512m -Dlogging.file=app.log" `
                  --win-console `
                  --verbose
       shell: powershell
 
-    - name: 📤 Upload EXE folder as artifact
+    - name: 📤 Upload EXE Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: springboot-exe-folder
-        path: output/MySpringApp
+        n
