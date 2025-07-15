@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-windows-exe:
+  build-exe:
     runs-on: windows-latest
 
     steps:
@@ -19,29 +19,32 @@ jobs:
         distribution: 'temurin'
         java-version: '21'
 
-    - name: Install WiX Toolset
+    - name: Download WiX Toolset v3.11.2
       run: |
-        choco install wix --no-progress --pre
-        echo "✅ WiX installed"
+        Invoke-WebRequest -Uri https://github.com/wixtoolset/wix3/releases/download/wix3112rtm/wix311-binaries.zip -OutFile wix.zip
+        Expand-Archive wix.zip -DestinationPath wix
+        $env:Path += ";$pwd\wix"
+        echo "WiX tools manually extracted and added to PATH"
       shell: powershell
 
-    - name: Build with Maven
+    - name: Build Spring Boot fat JAR
       run: mvn clean package -DskipTests
 
-    - name: Package EXE using jpackage
+    - name: Create EXE with jpackage
       run: |
+        $env:Path += ";$pwd\wix"
         jpackage --type exe `
                  --input target `
                  --name MySpringApp `
                  --main-jar springboot-to-exe-0.0.1-SNAPSHOT.jar `
                  --main-class org.springframework.boot.loader.JarLauncher `
                  --dest output `
-                 --java-options "-Xmx512m" `
-                 --win-console
+                 --win-console `
+                 --java-options "-Xmx512m"
       shell: powershell
 
-    - name: Upload EXE Artifact
+    - name: Upload EXE
       uses: actions/upload-artifact@v4
       with:
-        name: springboot-app-installer
+        name: springboot-windows-installer
         path: output\MySpringApp-*.exe
