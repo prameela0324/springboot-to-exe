@@ -7,7 +7,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class SpringbootToExeApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SpringbootToExeApplication.class, args);
+		 System.out.println(" Starting MySpringApp on port 8080...");
+        SpringApplication.run(SpringbootToExeApplication.class, args);
+        System.out.println(" MySpringApp started successfully!");
 	}
 
 }
