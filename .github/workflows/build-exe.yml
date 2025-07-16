@@ -1,4 +1,4 @@
-name: Build Spring Boot EXE
+name: Build Spring Boot EXE Installer
 
 on:
   push:
@@ -6,11 +6,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-exe:
+  build:
     runs-on: windows-latest
 
     steps:
-    - name: 🧾 Checkout Source Code
+    - name: 🧾 Checkout Code
       uses: actions/checkout@v4
 
     - name: ☕ Set up Java 21
@@ -19,17 +19,16 @@ jobs:
         distribution: temurin
         java-version: 21
 
-    - name: 🧪 Build fat JAR using Maven
+    - name: 🔧 Install WiX Toolset
+      run: choco install wix --version=3.11.2 --no-progress
+      shell: powershell
+
+    - name: 🧪 Build Spring Boot fat JAR
       run: mvn clean package -DskipTests
 
-    - name: 📂 Confirm JAR has JarLauncher.class
+    - name: 📦 Create Standalone EXE Installer
       run: |
-        jar tf target/springboot-to-exe-0.0.1-SNAPSHOT.jar | findstr JarLauncher
-      shell: cmd
-
-    - name: 📦 Create EXE with jpackage (NO --main-class)
-      run: |
-        jpackage --type app-image `
+        jpackage --type exe `
                  --input target `
                  --name MySpringApp `
                  --main-jar springboot-to-exe-0.0.1-SNAPSHOT.jar `
@@ -39,8 +38,8 @@ jobs:
                  --verbose
       shell: powershell
 
-    - name: 📤 Upload EXE App Folder
+    - name: 📤 Upload EXE Only
       uses: actions/upload-artifact@v4
       with:
-        name: springboot-exe-folder
-        path: output/MySpringApp
+        name: springboot-installer
+        path: output/MySpringApp-1.0.exe
